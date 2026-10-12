@@ -41,16 +41,16 @@
 1. 克隆或下载本仓库
 2. 打开 `edge://extensions/`（Chrome 为 `chrome://extensions/`）
 3. 左下角开启「**开发人员模式**」
-4. 点「**加载解压缩的扩展**」，选择 **`dist/一键看图下载`** 目录
+4. 点「**加载解压缩的扩展**」，选择 **`dist/extension`** 目录
    > 判断标准：选中的目录里应当**直接能看到 `manifest.json`**
 5. 图标默认收在拼图菜单里：点地址栏右侧 🧩 → 找到「一键看图下载」→ 点眼睛图标固定到工具栏
 
 ### 方式二：从源码加载
 
-直接用 `extension/` 目录，内容与 `dist/` 一致（仅多一份 README）。
+直接用 `extension/` 目录，内容与 `dist/extension/` 一致（仅多一份 README）。
 
 ```bash
-node tools/build-dist.js          # 修改 extension/ 后同步到 dist/
+node tools/build-dist.js          # 修改 extension/ 后同步到 dist/extension/
 node tools/build-dist.js --check  # 只校验两者是否一致（CI 用）
 ```
 
@@ -115,7 +115,7 @@ extension/               扩展本体（Edge 直接加载这个目录也行）
   popup.html|css|js      界面 + ZIP 全流程
   lib/jszip.min.js       JSZip 3.10.1（唯一第三方库）
   icons/                 16 / 48 / 128 图标
-dist/一键看图下载/        可直接加载的发布副本（由 tools/build-dist.js 同步）
+dist/extension/          可直接加载的发布副本（由 tools/build-dist.js 同步）
 tools/                   开发与验证工具（见上）
 ```
 

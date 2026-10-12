@@ -1,8 +1,13 @@
 /**
- * 把 extension/ 同步到 dist/，供「加载解压缩的扩展」直接使用。
+ * 把 extension/ 同步到 dist/extension/，供「加载解压缩的扩展」直接使用。
  *
- * 为什么保留 dist/：这个扩展没有构建步骤，dist/ 就是可直接加载的产物，
+ * 为什么保留 dist/：这个扩展没有构建步骤，dist/extension 就是可直接加载的产物，
  * 与 extension/ 内容完全一致（仅不含 README.md 等文档）。
+ *
+ * 为什么目录名用 ASCII：早期用的是 dist/一键看图下载，但非 ASCII 路径在
+ * git（默认 core.quotepath 会把中文转义成 \344\270\200...）与各种 tar/unzip 实现之间
+ * 容易出问题，而这是"别人要拿去加载"的路径，必须稳。
+ *
  * 用 `node tools/build-dist.js --check` 可以只校验两者是否一致（CI 用）。
  *
  * 用法：
@@ -15,7 +20,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'extension');
-const DIST = path.join(ROOT, 'dist', '一键看图下载');
+const DIST = path.join(ROOT, 'dist', 'extension');
 const SKIP = new Set(['README.md']);            // 文档不放进可加载目录，避免 Edge 对 .md 告警
 
 const check = process.argv.includes('--check');

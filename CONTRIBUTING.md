@@ -11,7 +11,7 @@
 修改 `extension/` 下的代码后：
 
 ```bash
-node tools/build-dist.js    # 同步到 dist/
+node tools/build-dist.js    # 同步到 dist/extension/
 ```
 
 然后在 `edge://extensions/` 点扩展卡片上的刷新 ↻ 生效。

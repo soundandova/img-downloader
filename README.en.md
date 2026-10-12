@@ -37,11 +37,11 @@ This extension handles those cases while asking for as few permissions as possib
 1. Clone or download this repository
 2. Open `edge://extensions/` (or `chrome://extensions/`)
 3. Enable **Developer mode** (bottom-left)
-4. Click **Load unpacked** and select the **`dist/一键看图下载`** folder
+4. Click **Load unpacked** and select the **`dist/extension`** folder
    > The folder you pick must contain `manifest.json` directly
 5. The icon is hidden behind the puzzle piece by default: click 🧩 next to the address bar → find the extension → click the eye icon to pin it
 
-Source lives in `extension/`; `dist/` is an identical copy kept in sync by `node tools/build-dist.js`.
+Source lives in `extension/`; `dist/extension/` is an identical copy kept in sync by `node tools/build-dist.js`.
 
 ## Usage
 
