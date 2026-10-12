@@ -5,6 +5,7 @@
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![No build step](https://img.shields.io/badge/build-none%20required-brightgreen)]()
+[![CI](https://github.com/soundandova/img-downloader/actions/workflows/ci.yml/badge.svg)](https://github.com/soundandova/img-downloader/actions/workflows/ci.yml)
 
 [English](README.en.md)
 

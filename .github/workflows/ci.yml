@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 本工作流刻意不启动浏览器。
+# 真机端到端（tools/e2e.js）需要安装 Chrome，属于环境依赖较重的检查，放在本地跑
+# （命令见 CONTRIBUTING.md）。CI 只做确定性检查：语法、清单引用、解析器单测、
+# dist 与 extension 一致性。这样 CI 快且稳定，不会因 runner 环境差异而失败。
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 让日志里的中文文件名可读（git 默认会输出成 \344\270\200 这种转义）
+      - name: 配置 git 显示中文路径
+        run: git config --global core.quotepath false
+
+      - name: 语法检查（扩展本体 + 工具）
+        run: |
+          set -e
+          for f in extension/*.js tools/*.js tools/lib/*.js; do
+            node --check "$f"
+          done
+          echo "全部通过"
+
+      - name: 清单与资源引用自检
+        run: node tools/check-manifest.js
+
+      - name: 解析器单测
+        run: node tools/test-parser.js
+
+      - name: dist 与 extension 是否一致
+        run: node tools/build-dist.js --check

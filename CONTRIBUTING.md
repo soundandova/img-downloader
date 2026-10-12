@@ -20,10 +20,15 @@ node tools/build-dist.js    # 同步到 dist/
 
 ```bash
 node tools/fixture-site.js 8099                        # 另开一个终端
+node tools/check-manifest.js                           # 清单与资源引用自检
 node tools/test-parser.js                              # 解析器单测，应 39 项全过
 node tools/e2e.js http://127.0.0.1:8099/article/1/     # 真机端到端，应 39 项全过
 node tools/build-dist.js --check                       # dist 与 extension 应一致
 ```
+
+CI（`.github/workflows/ci.yml`）会跑其中**不依赖浏览器**的部分：语法检查、清单自检、
+解析器单测、`dist` 一致性。**真机端到端不在 CI 里跑**——它需要安装 Chrome，属于环境依赖较重的
+检查，请你在本地跑过之后把输出贴在 PR 里。
 
 涉及抓取性能或分页逻辑的改动，请再跑一次：
 
