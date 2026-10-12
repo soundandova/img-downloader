@@ -1,0 +1,32 @@
+# 开发/测试产物
+.dev-profile/
+.e2e-profile/
+.perf-profile/
+.probe-profile/
+.diag-profile/
+.msg-profile/
+.syn-profile/
+.st-profile/
+.st2-profile/
+.cost-profile/
+.fin-profile/
+.loadtest/
+*.log
+dist/*.zip
+
+# 研究阶段素材（含第三方扩展反编译源码与站点快照，不入库）
+research/
+
+# GitHub Actions 工作流暂未纳入提交：
+# 推送 .github/workflows/ 下的任何文件都要求 Personal Access Token 具备 workflow 权限。
+# 拿到带该权限的 token 后，删掉下面这行再提交即可：
+#   git add .github/workflows/ci.yml
+#   git commit -m "ci: 加入 GitHub Actions 工作流"
+#   git push
+.github/workflows/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "一键看图下载",
+  "version": "0.1.0",
+  "description": "一键扫描当前页面（含分页）的所有图片，按尺寸过滤后下载或打包为 ZIP。",
+  "minimum_chrome_version": "114",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "一键看图下载"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage",
+    "downloads",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

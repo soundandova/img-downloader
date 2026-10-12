@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>一键看图下载</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="head">
+    <div class="head-row">
+      <strong class="brand">一键看图下载</strong>
+      <span class="ver" id="ver"></span>
+    </div>
+    <div class="page-title" id="pageTitle">—</div>
+  </header>
+
+  <section class="panel">
+    <div class="row">
+      <label class="lbl">最小尺寸</label>
+      <input type="number" id="minW" min="0" step="50" value="0" title="最小宽度（px）">
+      <span class="x">×</span>
+      <input type="number" id="minH" min="0" step="50" value="0" title="最小高度（px）">
+      <span class="unit">px</span>
+    </div>
+    <div class="row">
+      <button class="mini" id="preset1000">1000+</button>
+      <button class="mini" id="preset1200">1200+</button>
+      <button class="mini" id="preset0">不限</button>
+      <label class="chk"><input type="checkbox" id="onlyScope"> 只算正文</label>
+    </div>
+    <div class="row">
+      <label class="chk" title="关闭时只扫描当前显示的这一页，不跟随分页链接">
+        <input type="checkbox" id="multiPage" checked> 探测多页
+      </label>
+      <label class="lbl" id="pageCapLabel">上限</label>
+      <input type="number" id="pageCap" min="2" max="60" step="1" value="60" title="最多探测多少页（含当前页）">
+      <span class="unit">页</span>
+    </div>
+    <div class="row">
+      <label class="chk" title="抓原图时移除 Referer、伪装成直接访问，可绕过部分图床的防盗链">
+        <input type="checkbox" id="fetchRules"> 绕防盗链
+      </label>
+      <label class="chk" title="按当前页的 title 建子文件夹">
+        <input type="checkbox" id="useFolder" checked> 建同名文件夹
+      </label>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnScan">扫描页面</button>
+      <button class="primary" id="btnZip" disabled>打包 ZIP</button>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="btnDl" disabled>下载选中 (<span id="selCount">0</span>)</button>
+      <button class="mini" id="btnAll">全选</button>
+      <button class="mini" id="btnNone">全不选</button>
+    </div>
+    <div class="row">
+      <label class="lbl">排序</label>
+      <select id="sortBy">
+        <option value="page">页面顺序</option>
+        <option value="size">尺寸从大到小</option>
+        <option value="name">文件名</option>
+        <option value="domain">来源域名</option>
+      </select>
+      <label class="lbl">筛选</label>
+      <select id="filterType">
+        <option value="all">全部</option>
+        <option value="ok">仅通过的</option>
+        <option value="small">仅被过滤的</option>
+        <option value="unknown">仅尺寸未知</option>
+      </select>
+    </div>
+    <details class="adv">
+      <summary>抓取节奏（分页很多时可调快）</summary>
+      <div class="row">
+        <label class="lbl">分页并发</label>
+        <input type="number" id="pageConcurrency" min="1" max="8" step="1" value="4"
+               title="同时抓几页。越大越快，但更容易被站点限速">
+        <label class="lbl">页间隔</label>
+        <input type="number" id="pageDelay" min="0" max="2000" step="50" value="0"
+               title="每批分页之间的等待毫秒数。默认 0：并发批次本身已限制频率，再加固定间隔只会更慢">
+        <span class="unit">ms</span>
+      </div>
+      <div class="row">
+        <label class="lbl">尺寸探测并发</label>
+        <input type="number" id="probeConcurrency" min="1" max="12" step="1" value="6"
+               title="同时探测几张图的真实尺寸">
+      </div>
+    </details>
+  </section>
+
+  <section class="status">
+    <div class="bar"><div class="bar-fill" id="bar"></div></div>
+    <div class="status-text" id="status">点「扫描页面」开始</div>
+    <div class="meta" id="meta"></div>
+  </section>
+
+  <section class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="fail" id="failBox" hidden>
+    <div class="fail-head">
+      <strong>失败项 <span id="failCount">0</span></strong>
+      <button class="mini" id="btnCopyFail">复制</button>
+    </div>
+    <ul id="failList"></ul>
+  </section>
+
+  <!-- ZIP 落盘必须在 popup 里做：MV3 service worker 没有 URL.createObjectURL -->
+  <script src="lib/jszip.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
