@@ -82,7 +82,8 @@ No build step. Edit files under `extension/`, then hit the reload ↻ button on 
 # Requires Node 18+ (uses global WebSocket / fetch). The extension itself has zero runtime deps.
 
 node tools/fixture-site.js 8099                        # local paginated fixture site
-node tools/test-parser.js                              # parser unit tests (39)
+node tools/check-manifest.js                           # manifest + asset reference check
+node tools/test-parser.js                              # parser unit tests (41, offline)
 node tools/e2e.js http://127.0.0.1:8099/article/1/     # real-browser end-to-end (39)
 node tools/build-dist.js --check                       # dist must match extension/
 node tools/perf.js [URL]                               # phase timings + progress-accounting checks

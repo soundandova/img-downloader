@@ -91,12 +91,17 @@ node tools/build-dist.js --check  # 只校验两者是否一致（CI 用）
 # 本地分页测试站：8 页 × 16 张真实 PNG，可模拟慢页，不依赖外网
 node tools/fixture-site.js 8099
 
-node tools/test-parser.js                              # 解析器单测（39 项）
+node tools/check-manifest.js                           # 清单与资源引用自检
+node tools/test-parser.js                              # 解析器单测（41 项，离线）
 node tools/e2e.js http://127.0.0.1:8099/article/1/     # 真机端到端（39 项）
 node tools/e2e.js <任意文章URL>                         # 对着真实站点跑
 node tools/e2e.js --full                               # 追加整篇 ZIP 验证
 node tools/perf.js [URL]                               # 分阶段计时 + 进度数字自洽性断言
+node tools/build-dist.js --check                       # dist 与 extension 是否一致
 ```
+
+CI（`.github/workflows/ci.yml`）只跑不依赖浏览器的部分：语法检查、清单自检、
+解析器单测、`dist` 一致性。真机端到端需要安装 Chrome，请本地跑。
 
 测试工具会自动查找本机的 Edge 或 Chrome。可用环境变量覆盖：
 
@@ -117,6 +122,8 @@ extension/               扩展本体（Edge 直接加载这个目录也行）
   icons/                 16 / 48 / 128 图标
 dist/extension/          可直接加载的发布副本（由 tools/build-dist.js 同步）
 tools/                   开发与验证工具（见上）
+  lib/harness.js         共用模块：自动查找本机浏览器、CDP 客户端、断言工具
+  fixtures/              解析器测试用的页面结构样本（从真实页面裁剪并脱敏，离线可用）
 ```
 
 ## 已知限制
