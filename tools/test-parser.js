@@ -42,14 +42,23 @@ function check(name, cond, detail) {
   else { fail++; console.log(`  ❌ ${name}${detail ? '  → ' + detail : ''}`); }
 }
 
-const TARGET = path.join(__dirname, '..', 'research', '_target');
-// 用页面真实 URL（百分号编码形式），与运行时一致
-const URL1 = 'https://everia.club/2026/10/09/rina-saito-%e6%96%89%e8%97%a4%e9%87%8c%e5%a5%88-parade%e3%83%87%e3%82%b8%e3%82%bf%e3%83%ab%e3%83%95%e3%82%a9%e3%83%88%e3%83%96%e3%83%83%e3%82%af-%e3%81%9a%e3%81%a3%e3%81%a8%e8%a6%8b%e3%81%a4/';
-const URL2 = URL1 + '2/';
+// fixture 是从真实页面裁剪并脱敏后随仓库一起提交的（见 tools/make-fixtures.js），
+// 这样测试不依赖任何外部站点、也不需要联网。
+const FIXTURES = path.join(__dirname, 'fixtures');
 
-console.log('\n=== 1. 真实页面解析（everia.club / WordPress 分页 + 图床在别的域）===');
-const html1 = fs.readFileSync(path.join(TARGET, 'page1.html'), 'utf8');
-const html2 = fs.readFileSync(path.join(TARGET, 'page2.html'), 'utf8');
+console.log('\n=== 1. WordPress 结构解析（正文容器限定 + 跨域图床 + 分页块）===');
+const html1 = fs.readFileSync(path.join(FIXTURES, 'wordpress-page1.html'), 'utf8');
+const html2 = fs.readFileSync(path.join(FIXTURES, 'wordpress-page2.html'), 'utf8');
+
+// 页面 URL 从 fixture 自身推导：fixture 里第一条分页链接就是 "/2/" 的地址。
+// 这样 URL 与 fixture 内容永远自洽，改 fixture 不会让测试莫名失败。
+const m2 = html1.match(/href="([^"]+\/2\/)"/);
+if (!m2) {
+  console.error('fixture 里找不到 /2/ 分页链接，无法推导页面 URL');
+  process.exit(1);
+}
+const URL2 = m2[1];
+const URL1 = URL2.replace(/2\/$/, '');
 
 const r1 = parseListingHtml(html1, URL1);
 const r2 = parseListingHtml(html2, URL2);
@@ -59,22 +68,28 @@ check('page2 抽到正文图 16 张', r2.images.length === 16, `实际 ${r2.imag
 check('page1 首图是 _1.webp', /_1\.webp$/.test(r1.images[0].url), r1.images[0].url);
 check('page1 末图是 _16.webp', /_16\.webp$/.test(r1.images[15].url), r1.images[15].url);
 check('page2 首图是 _17.webp', /_17\.webp$/.test(r2.images[0].url), r2.images[0].url);
-check('图片全部落到图床 reiobox.top', r1.images.every(i => /reiobox\.top/.test(i.url)));
+check('图片全部来自跨域图床 img.example.net', r1.images.every((i) => /img\.example\.net/.test(i.url)));
 check('page1 页号解析为 1', r1.page === 1, String(r1.page));
 check('page2 页号解析为 2', r2.page === 2, String(r2.page));
-check('page1 发现 6 个后续分页链接', r1.nextPages.length === 6, `实际 ${r1.nextPages.length}`);
-check('分页链接里含 /7/', r1.nextPages.some(u => /\/7\/$/.test(u)), r1.nextPages.join(' '));
-check('没有把封面缩略图（karubox.top）算进正文', !r1.images.some(i => /karubox\.top/.test(i.url)));
+check('page1 发现 6 个后续分页链接（/2/ 到 /7/）', r1.nextPages.length === 6, `实际 ${r1.nextPages.length}`);
+check('分页链接覆盖到最后一页 /7/', r1.nextPages.some((u) => /\/7\/$/.test(u)), r1.nextPages.join(' '));
+check('分页链接都是同族同源', r1.nextPages.every((u) => u.startsWith('https://example.com/')), r1.nextPages[0]);
+// 侧栏的 4 张相关文章缩略图必须被排除（这是"只算正文"的关键行为）
+check('侧栏缩略图（other.example.net）未被算进正文',
+  !r1.images.some((i) => /other\.example\.net/.test(i.url)),
+  r1.images.filter((i) => /other\.example/.test(i.url)).map((i) => i.url).join(' '));
+check('正文图与侧栏缩略图总数对得上（16 + 4 = 20）',
+  (html1.match(/<img/g) || []).length === 20, String((html1.match(/<img/g) || []).length));
 check('标题已解码 HTML 实体', r1.title.indexOf('&#') < 0 && r1.title.indexOf('–') >= 0, r1.title);
 
 console.log('\n=== 2. 分页范围限制（不能爬到站内别的文章）===');
-const foreign = 'https://everia.club/2026/10/08/another-post/';
+const foreign = 'https://example.com/2026/10/08/another-post/';
 const same = mod.samePagerScope(URL1 + '3/', URL1);
 const diff = mod.samePagerScope(foreign, URL1);
 check('同族 /3/ 被接受', same === true);
 check('其它文章被拒绝', diff === false);
 check('首页自身被接受', mod.samePagerScope(URL1, URL1) === true);
-check('完全无关的路径被拒绝', mod.samePagerScope('https://everia.club/2026/10/08/x/2/', URL1) === false);
+check('完全无关的路径被拒绝', mod.samePagerScope('https://example.com/2026/10/08/x/2/', URL1) === false);
 
 console.log('\n=== 3. 真实页面里不该出现的东西 ===');
 check('没有 data: 内联图', !r1.images.some(i => i.url.startsWith('data:')));
